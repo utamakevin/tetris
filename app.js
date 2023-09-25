@@ -1,9 +1,15 @@
 const startButton = document.querySelector(".start-button")
 const leftButton = document.querySelector(".left-button")
 const rightButton = document.querySelector(".right-button")
+const rotateButton = document.querySelector(".rotate-button")
 const downButton = document.querySelector(".down-button")
 
 let width = null
+let input = null
+
+let anchor = 4
+let shape = "L"
+let rotation = 0
 
 // creates grid (width, height)
 createGrid(8, 20)
@@ -13,12 +19,20 @@ console.log(squares)
 
 function leftButtonClicked() {
     console.log("left clicked")
+    moveTetromino("left")
 }
 function rightButtonClicked() {
     console.log("right clicked")
+    moveTetromino("right")
+}
+function rotateButtonClicked() {
+    console.log("rotate clicked")
+    rotateTetromino(input)
 }
 function downButtonClicked() {
     console.log("down clicked")
+    input = "down"
+    placeTetromino()
 }
 
 function createGrid(numberOfColumns, numberOfRows) {
@@ -37,39 +51,85 @@ function createGrid(numberOfColumns, numberOfRows) {
         }
     }
 }
-const tetriminoI = [
-    [0, 0 + width, 0 + width*2, 0 + width*3],
-    [0, 0 + 1, 0 + 2, 0 + 3],
-    [0, 0 + width, 0 + width*2, 0 + width*3],
-    [0, 0 + 1, 0 + 2, 0 + 3],
-]
-const tetriminoS = [
-    [0 + 1, 0 + 2, 0 + width, 0 + width + 1],
-    [0, 0 + width, 0 + width + 1, 0 + width*2 + 1],
-    [0 + 1, 0 + 2, 0 + width, 0 + width + 1],
-    [0, 0 + width, 0 + width + 1, 0 + width*2 + 1],
-]
-const tetriminoO = [
-    [0, 0 + 1, 0 + width, 0 + width + 1],
-    [0, 0 + 1, 0 + width, 0 + width + 1],
-    [0, 0 + 1, 0 + width, 0 + width + 1],
-    [0, 0 + 1, 0 + width, 0 + width + 1],
-]
-const tetriminoL = [
-    [0, 0 + width, 0 + width*2, 0 + width*2 + 1],
-    [0, 0 + 1, 0 + 2, 0 + width],
-    [0, 0 + 1, 0 + width + 1, 0 + width*2 + 1],
-    [0 + 2, 0 + width, 0 + width + 1, 0 + width + 2 ]
-]
 
-// console.log(tetriminoL[0])
+const tetrominoes = {
+    I: [
+        [0, 0 + width, 0 + width*2, 0 + width*3],
+        [0, 0 + 1, 0 + 2, 0 + 3],
+        [0, 0 + width, 0 + width*2, 0 + width*3],
+        [0, 0 + 1, 0 + 2, 0 + 3],
+    ],
+    S: [
+        [0 + 1, 0 + 2, 0 + width, 0 + width + 1],
+        [0, 0 + width, 0 + width + 1, 0 + width*2 + 1],
+        [0 + 1, 0 + 2, 0 + width, 0 + width + 1],
+        [0, 0 + width, 0 + width + 1, 0 + width*2 + 1],
+    ], 
+    O: [
+        [0, 0 + 1, 0 + width, 0 + width + 1],
+        [0, 0 + 1, 0 + width, 0 + width + 1],
+        [0, 0 + 1, 0 + width, 0 + width + 1],
+        [0, 0 + 1, 0 + width, 0 + width + 1],
+    ], 
+    L: [
+        [0, 0 + width, 0 + width*2, 0 + width*2 + 1],
+        [0, 0 + 1, 0 + 2, 0 + width],
+        [0, 0 + 1, 0 + width + 1, 0 + width*2 + 1],
+        [0 + 2, 0 + width, 0 + width + 1, 0 + width + 2 ]
+    ], 
+    T: [
+        [0, 0 + 1, 0 + 2, width + 1],
+        [0 + 1, width, width + 1, width*2 + 1],
+        [0 + 1, width, width + 1, width + 2],
+        [0, width, width + 1, width*2]
+    ]
+}
 
-function drawTetromino(anchor) {
-    tetriminoS[1].forEach(squareIndex => {
+function drawTetromino(anchor, shape, rotation) {
+    tetrominoes[shape][rotation].forEach(squareIndex => {
         squares[squareIndex + anchor].classList.add("red")
     })
 }
-drawTetromino(4)
+
+function clearBoard() {
+    squares.forEach(square => {
+        square.classList.remove("red")
+    })
+}
+
+function moveTetromino(input) {
+    clearBoard()
+    if (input == "left" && anchor > 0) {
+        anchor--
+    }
+    if (input == "right" && anchor < 8) {
+        anchor++
+    }
+    drawTetromino(anchor, shape, rotation)
+}
+
+function rotateTetromino() {
+    clearBoard()
+    if (rotation == 3) {
+        rotation = 0
+    } else {
+        rotation++
+    }
+    drawTetromino(anchor, shape, rotation)
+}
+
+async function placeTetromino() {
+    let counter = 0
+    while (counter < 10) {
+        await new Promise(resolve => setTimeout(resolve, 300))
+        clearBoard()
+        anchor += width 
+        drawTetromino(anchor, shape, rotation)
+        counter++
+    }
+}
+
+drawTetromino(anchor, shape, rotation)
 function gameLoop() {
 
 }
@@ -77,4 +137,5 @@ function gameLoop() {
 startButton.addEventListener("click", gameLoop)
 leftButton.addEventListener("click", leftButtonClicked)
 rightButton.addEventListener("click", rightButtonClicked)
+rotateButton.addEventListener("click", rotateButtonClicked)
 downButton.addEventListener("click", downButtonClicked)
