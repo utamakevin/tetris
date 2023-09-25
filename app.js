@@ -4,25 +4,23 @@ const rightButton = document.querySelector(".right-button")
 const rotateButton = document.querySelector(".rotate-button")
 const downButton = document.querySelector(".down-button")
 
-let gridWidth = null
+let gridWidth = 10
+let gridHeight = 20
+
 let input = null
+let depthCounter = 0
 
 let anchor = 4
-let shape = "T"
+let shape = "L"
 let rotation = 0
 
 let bounds = {
-    top: false,
-    right: false,
     bottom: false,
-    left: false
 }
 
-// creates grid (width, height)
-createGrid(10, 20)
+createGrid(gridWidth, gridHeight)
 
 let squares = Array.from(document.querySelectorAll(".square"))
-console.log(squares)
 
 function leftButtonClicked() {
     console.log("left clicked")
@@ -129,28 +127,29 @@ function clearBoard() {
 
 function checkBound(anchor, shape, rotation) {
     if (anchor % gridWidth == 0) {
-        bounds.left = true
-        console.log("bound left met")
         leftButton.disabled = true
     } else {
-        bounds.left = false
-        console.log("bound left released")
         leftButton.disabled = false
     }
 
-    if (anchor + tetrominoes[shape].occupiedWidth[rotation] == gridWidth ) {
+    if ((anchor + tetrominoes[shape].occupiedWidth[rotation]) % gridWidth == 0 ) {
         rightButton.disabled = true
     } else {
         rightButton.disabled = false
+    }
+    
+    if (anchor + gridWidth * tetrominoes[shape].occupiedHeight[rotation] >= squares.length) {
+        console.log("bottom bound")
+        bounds.bottom = true
     }
 }
 
 function moveTetromino(input) {
     clearBoard()
-    if (input == "left" && anchor > 0) {
+    if (input == "left" && anchor % gridWidth > 0) {
         anchor--
     }
-    if (input == "right" && anchor < 8) {
+    if (input == "right" && (anchor + tetrominoes[shape].occupiedWidth[rotation]) % gridWidth <= gridWidth) {
         anchor++
     }
     drawTetromino(anchor, shape, rotation)
@@ -158,23 +157,30 @@ function moveTetromino(input) {
 
 function rotateTetromino() {
     clearBoard()
-    if (rotation == 3) {
-        rotation = 0
+
+    rotation++
+    if (rotation == 4) rotation = 0
+
+    if (gridWidth - anchor % gridWidth < tetrominoes[shape].occupiedWidth[rotation]) {
+        console.log('too far')
+        anchor = depthCounter * gridWidth + gridWidth - tetrominoes[shape].occupiedWidth[rotation]
+        drawTetromino(anchor, shape, rotation)
     } else {
-        rotation++
+        drawTetromino(anchor, shape, rotation)
     }
-    drawTetromino(anchor, shape, rotation)
 }
 
 async function placeTetromino() {
-    let counter = 0
-    while (counter < 10) {
+    downButton.disabled = true
+    while (bounds.bottom == false) {
         await new Promise(resolve => setTimeout(resolve, 300))
         clearBoard()
         anchor += gridWidth 
         drawTetromino(anchor, shape, rotation)
-        counter++
+        depthCounter++
     }
+    downButton.disabled = false
+    rotateButton.disabled = true
 }
 
 drawTetromino(anchor, shape, rotation)
