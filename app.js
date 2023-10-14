@@ -8,8 +8,7 @@ let gridWidth = 10
 let gridHeight = 20
 
 let input = null
-let depthCounter = 0
-
+depthCounter = 0
 const initAnchor = (gridWidth / 2) - 1
 let anchor = initAnchor
 let shape = "L"
@@ -180,10 +179,15 @@ async function placeTetromino() {
         drawTetromino(anchor, shape, rotation)
         depthCounter++
     }
+   
+    anchor = initAnchor
+    depthCounter = 0
+    drawNextTetromino(anchor, shape, rotation)
+}
+
+function drawNextTetromino(anchor, shape, rotation) {
     downButton.disabled = false
     
-    anchor = initAnchor
-
     squares.forEach(square => {
         if (square.classList.contains("red")) {
             square.classList.remove("red")
@@ -191,10 +195,6 @@ async function placeTetromino() {
         }
     })
     
-    drawNextTetromino(anchor, shape, rotation)
-}
-
-function drawNextTetromino(anchor, shape, rotation) {
     bounds.bottom = false
     console.log("drawing next tetromino")
     drawTetromino(anchor, shape, rotation)
