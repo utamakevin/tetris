@@ -174,6 +174,8 @@ async function placeTetromino() {
     downButton.disabled = true
     while (bounds.bottom == false) {
         await new Promise(resolve => setTimeout(resolve, 300))
+        checkTetrominoesCollision()
+        if (bounds.bottom == true) continue
         clearBoard()
         anchor += gridWidth 
         drawTetromino(anchor, shape, rotation)
@@ -183,6 +185,14 @@ async function placeTetromino() {
     anchor = initAnchor
     depthCounter = 0
     drawNextTetromino(anchor, shape, rotation)
+}
+
+function checkTetrominoesCollision() {
+    tetrominoes[shape].possibleRotation[rotation].forEach(squareIndex => {
+        if (squares[squareIndex + anchor + gridWidth].classList.contains("blue")) {
+            bounds.bottom = true
+        }
+    })
 }
 
 function drawNextTetromino(anchor, shape, rotation) {
